@@ -57,93 +57,113 @@ const DataIssues = ({ data }) => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-2">
-          ⚠️ Data Issues
+    <div className="space-y-10">
+      {/* Header */}
+      <div className="mb-12">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-red-500 via-orange-500 to-pink-500 bg-clip-text text-transparent mb-4 tracking-wide">
+          DATA DIAGNOSTICS
         </h1>
-        <p className="text-gray-600 dark:text-slate-400 text-lg">Analysis of missing and problematic data</p>
+        <p className="text-gothic-platinum text-xl font-light">Analysis of missing and problematic data</p>
       </div>
 
-      {/* Summary */}
-      <div className="bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-          📈 Summary
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-red-500 to-red-600 p-6 rounded-xl text-white shadow-lg">
-            <h3 className="text-sm font-medium text-red-100">Columns with Issues</h3>
-            <p className="text-3xl font-bold">
+      {/* Glassmorphism Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="group relative backdrop-blur-xl bg-gothic-charcoal/40 border border-gothic-silver/20 p-4 rounded-2xl shadow-2xl shadow-red-500/20 hover:shadow-red-400/30 transform hover:scale-105 transition-all duration-500 hover:animate-glow">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent rounded-2xl"></div>
+          <div className="relative z-10">
+            <h3 className="text-sm font-bold text-gothic-silver uppercase tracking-widest mb-2">Columns with Issues</h3>
+            <p className="text-2xl font-bold text-gothic-platinum mb-2">
               {columns.filter(col => col.null_count > 0).length}
             </p>
+            <div className="w-full h-1 bg-gothic-slate/50 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-red-500 to-orange-500 rounded-full animate-pulse"></div>
+            </div>
           </div>
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
-            <h3 className="text-sm font-medium text-orange-100">Total Missing Values</h3>
-            <p className="text-3xl font-bold">
+        </div>
+        
+        <div className="group relative backdrop-blur-xl bg-gothic-charcoal/40 border border-gothic-silver/20 p-4 rounded-2xl shadow-2xl shadow-orange-500/20 hover:shadow-orange-400/30 transform hover:scale-105 transition-all duration-500 hover:animate-glow">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent rounded-2xl"></div>
+          <div className="relative z-10">
+            <h3 className="text-sm font-bold text-gothic-silver uppercase tracking-widest mb-2">Total Missing</h3>
+            <p className="text-2xl font-bold text-gothic-platinum mb-2">
               {columns.reduce((sum, col) => sum + col.null_count, 0).toLocaleString()}
             </p>
+            <div className="w-full h-1 bg-gothic-slate/50 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-orange-500 to-pink-500 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
+            </div>
           </div>
-          <div className="bg-gradient-to-br from-pink-500 to-pink-600 p-6 rounded-xl text-white shadow-lg">
-            <h3 className="text-sm font-medium text-pink-100">Worst Column</h3>
-            <p className="text-xl font-bold">
+        </div>
+        
+        <div className="group relative backdrop-blur-xl bg-gothic-charcoal/40 border border-gothic-silver/20 p-4 rounded-2xl shadow-2xl shadow-pink-500/20 hover:shadow-pink-400/30 transform hover:scale-105 transition-all duration-500 hover:animate-glow">
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-transparent rounded-2xl"></div>
+          <div className="relative z-10">
+            <h3 className="text-sm font-bold text-gothic-silver uppercase tracking-widest mb-2">Worst Column</h3>
+            <p className="text-xl font-bold text-gothic-platinum mb-2">
               {columns.reduce((worst, col) => 
                 col.null_percent > worst.null_percent ? col : worst, columns[0]
               ).name}
             </p>
+            <div className="w-full h-1 bg-gothic-slate/50 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-pink-500 to-red-500 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700">
-        <Chart
-          options={nullValuesChart.options}
-          series={nullValuesChart.series}
-          type="bar"
-          height={400}
-        />
+      {/* Glassmorphism Chart Container */}
+      <div className="relative backdrop-blur-xl bg-gothic-charcoal/30 border border-gothic-silver/20 p-6 rounded-2xl shadow-2xl shadow-gothic-purple/20 hover:shadow-gothic-accent/30 transition-all duration-500">
+        <div className="absolute inset-0 bg-gradient-to-br from-gothic-purple/10 to-transparent rounded-2xl"></div>
+        <div className="relative z-10">
+          <Chart
+            options={nullValuesChart.options}
+            series={nullValuesChart.series}
+            type="bar"
+            height={400}
+          />
+        </div>
       </div>
 
       {/* Detailed Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-        <div className="px-8 py-6 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-800">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-            📋 Column Details
+      <div className="relative backdrop-blur-xl bg-gothic-charcoal/30 border border-gothic-silver/20 rounded-3xl shadow-2xl shadow-gothic-purple/20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gothic-purple/5 to-gothic-violet/5 rounded-3xl"></div>
+        <div className="relative z-10 px-10 py-8 border-b border-gothic-silver/20">
+          <h2 className="text-3xl font-bold text-gothic-platinum tracking-wide">
+            Column Diagnostics
           </h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-800">
+        <div className="relative z-10 overflow-x-auto">
+          <table className="min-w-full divide-y divide-gothic-silver/20">
+            <thead className="backdrop-blur-sm bg-gothic-slate/30">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
                   Column Name
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
                   Data Type
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
                   Null Count
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
                   Null Percentage
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
                   Unique Values
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
                   Status
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
+            <tbody className="backdrop-blur-sm divide-y divide-gothic-silver/10">
               {columns.map((column, index) => (
-                <tr key={index} className={`hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors ${
-                  index % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-gray-50 dark:bg-slate-750'
+                <tr key={index} className={`hover:bg-gothic-slate/20 transition-all duration-300 backdrop-blur-sm ${
+                  index % 2 === 0 ? 'bg-gothic-charcoal/20' : 'bg-gothic-slate/10'
                 }`}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gothic-platinum">
                     {column.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gothic-silver">
                     <span className={`px-3 py-1 text-xs rounded-full font-medium ${
                       column.dtype === 'numeric' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
                       column.dtype === 'categorical' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
@@ -153,20 +173,20 @@ const DataIssues = ({ data }) => {
                       {column.dtype}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gothic-platinum">
                     {column.null_count.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`font-bold ${
-                      column.null_percent > 50 ? 'text-red-600 dark:text-red-400' :
-                      column.null_percent > 20 ? 'text-yellow-600 dark:text-yellow-400' :
-                      column.null_percent > 0 ? 'text-orange-600 dark:text-orange-400' :
-                      'text-green-600 dark:text-green-400'
+                      column.null_percent > 50 ? 'text-red-400' :
+                      column.null_percent > 20 ? 'text-yellow-400' :
+                      column.null_percent > 0 ? 'text-orange-400' :
+                      'text-green-400'
                     }`}>
                       {column.null_percent}%
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gothic-platinum">
                     {column.unique_count.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
