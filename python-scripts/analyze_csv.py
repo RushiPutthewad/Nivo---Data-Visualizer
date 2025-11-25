@@ -293,6 +293,19 @@ def generate_chart_recommendations(df, columns_meta):
     
     return recommendations
 
+def detect_delimiter(file_path):
+    """Detect CSV delimiter by trying common separators"""
+    delimiters = [',', ';', '|', '\t']
+    
+    for delimiter in delimiters:
+        try:
+            df = pd.read_csv(file_path, delimiter=delimiter, nrows=5)
+            if len(df.columns) > 1:  # Valid if more than 1 column
+                return delimiter
+        except:
+            continue
+    return ','
+
 def main():
     if len(sys.argv) != 2:
         print(json.dumps({'error': 'CSV file path required'}))
@@ -301,8 +314,16 @@ def main():
     csv_path = sys.argv[1]
     
     try:
-        # Read CSV
-        df = pd.read_csv(csv_path)
+        # Try reading CSV with default comma delimiter first
+        try:
+            df = pd.read_csv(csv_path)
+            # Check if parsing was successful (more than 1 column expected)
+            if len(df.columns) == 1:
+                raise ValueError("Single column detected, trying other delimiters")
+        except:
+            # Auto-detect delimiter and retry
+            delimiter = detect_delimiter(csv_path)
+            df = pd.read_csv(csv_path, delimiter=delimiter)
         
         # Infer column types and compute metrics
         columns_meta = infer_column_types(df)
@@ -324,7 +345,7 @@ def main():
         print(json.dumps(response, indent=2))
         
     except Exception as e:
-        print(json.dumps({'error': str(e)}))
+        print(json.dumps({'error': f'Failed to process CSV: {str(e)}'}))
         sys.exit(1)
 
 if __name__ == '__main__':

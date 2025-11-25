@@ -5,6 +5,7 @@ A React.js dashboard application that uses ApexCharts for visualization and Pyth
 ## Features
 
 - **CSV Upload**: Drag and drop CSV file upload with validation
+- **Auto-Delimiter Detection**: Automatically detects CSV delimiters (`,`, `;`, `|`, `\t`) when upload fails
 - **Automatic Data Analysis**: Python-powered data type inference and quality metrics
 - **Smart Chart Recommendations**: Automatic mapping of data types to appropriate chart types
 - **Interactive Dashboard**: Overview with key metrics and sample charts
