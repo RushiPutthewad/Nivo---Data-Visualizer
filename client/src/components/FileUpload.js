@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { FaFileCsv } from "react-icons/fa6";
 
 const FileUpload = ({ onDataAnalyzed, loading, setLoading }) => {
   const [dragActive, setDragActive] = useState(false);
@@ -109,7 +110,9 @@ const FileUpload = ({ onDataAnalyzed, loading, setLoading }) => {
             </div>
           ) : (
             <>
-              <div className="text-9xl mb-8 animate-float filter drop-shadow-2xl">📊</div>
+              <div className="flex justify-center mb-8">
+                <FaFileCsv className="text-9xl animate-float filter drop-shadow-2xl text-gothic-accent" />
+              </div>
               <h3 className="text-4xl font-bold bg-gradient-to-r from-gothic-silver to-gothic-accent bg-clip-text text-transparent mb-4 tracking-wide">
                 Upload Dataset
               </h3>
