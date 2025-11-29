@@ -56,6 +56,59 @@ const DataIssues = ({ data }) => {
     }
   };
 
+  // Chart for outliers (numeric columns only)
+  const numericColumns = columns.filter(col => col.dtype === 'numeric' && col.outlier_count > 0);
+  const outliersChart = {
+    series: [{
+      name: 'Outlier Count',
+      data: numericColumns.map(col => col.outlier_count)
+    }],
+    options: {
+      chart: {
+        type: 'bar',
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800
+        }
+      },
+      xaxis: {
+        categories: numericColumns.map(col => col.name),
+        labels: {
+          rotate: -45
+        }
+      },
+      title: {
+        text: 'Outliers in Numeric Columns',
+        style: {
+          color: '#c0c0c0'
+        }
+      },
+      colors: ['#f59e0b'],
+      theme: {
+        mode: 'dark'
+      },
+      chart: {
+        background: 'transparent'
+      },
+      plotOptions: {
+        bar: {
+          dataLabels: {
+            position: 'top'
+          }
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        offsetY: -20,
+        style: {
+          fontSize: '12px',
+          colors: ['#304758']
+        }
+      }
+    }
+  };
+
   return (
     <div className="space-y-10">
       {/* Header */}
@@ -67,7 +120,7 @@ const DataIssues = ({ data }) => {
       </div>
 
       {/* Glassmorphism Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="group relative backdrop-blur-xl bg-gothic-charcoal/40 border border-gothic-silver/20 p-4 rounded-2xl shadow-2xl shadow-red-500/20 hover:shadow-red-400/30 transform hover:scale-105 transition-all duration-500 hover:animate-glow">
           <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent rounded-2xl"></div>
           <div className="relative z-10">
@@ -108,19 +161,50 @@ const DataIssues = ({ data }) => {
             </div>
           </div>
         </div>
+        
+        <div className="group relative backdrop-blur-xl bg-gothic-charcoal/40 border border-gothic-silver/20 p-4 rounded-2xl shadow-2xl shadow-yellow-500/20 hover:shadow-yellow-400/30 transform hover:scale-105 transition-all duration-500 hover:animate-glow">
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-transparent rounded-2xl"></div>
+          <div className="relative z-10">
+            <h3 className="text-sm font-bold text-gothic-silver uppercase tracking-widest mb-2">Total Outliers</h3>
+            <p className="text-2xl font-bold text-gothic-platinum mb-2">
+              {columns.reduce((sum, col) => sum + (col.outlier_count || 0), 0).toLocaleString()}
+            </p>
+            <div className="w-full h-1 bg-gothic-slate/50 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse" style={{animationDelay: '1.5s'}}></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Glassmorphism Chart Container */}
-      <div className="relative backdrop-blur-xl bg-gothic-charcoal/30 border border-gothic-silver/20 p-6 rounded-2xl shadow-2xl shadow-gothic-purple/20 hover:shadow-gothic-accent/30 transition-all duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-gothic-purple/10 to-transparent rounded-2xl"></div>
-        <div className="relative z-10">
-          <Chart
-            options={nullValuesChart.options}
-            series={nullValuesChart.series}
-            type="bar"
-            height={400}
-          />
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Missing Values Chart */}
+        <div className="relative backdrop-blur-xl bg-gothic-charcoal/30 border border-gothic-silver/20 p-6 rounded-2xl shadow-2xl shadow-gothic-purple/20 hover:shadow-gothic-accent/30 transition-all duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-gothic-purple/10 to-transparent rounded-2xl"></div>
+          <div className="relative z-10">
+            <Chart
+              options={nullValuesChart.options}
+              series={nullValuesChart.series}
+              type="bar"
+              height={400}
+            />
+          </div>
         </div>
+        
+        {/* Outliers Chart */}
+        {numericColumns.length > 0 && (
+          <div className="relative backdrop-blur-xl bg-gothic-charcoal/30 border border-gothic-silver/20 p-6 rounded-2xl shadow-2xl shadow-yellow-500/20 hover:shadow-yellow-400/30 transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent rounded-2xl"></div>
+            <div className="relative z-10">
+              <Chart
+                options={outliersChart.options}
+                series={outliersChart.series}
+                type="bar"
+                height={400}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Detailed Table */}
@@ -149,6 +233,9 @@ const DataIssues = ({ data }) => {
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
                   Unique Values
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
+                  Outliers
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gothic-silver uppercase tracking-widest">
                   Status
@@ -188,6 +275,20 @@ const DataIssues = ({ data }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gothic-platinum">
                     {column.unique_count.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    {column.dtype === 'numeric' ? (
+                      <span className={`font-bold ${
+                        (column.outlier_percent || 0) > 10 ? 'text-red-400' :
+                        (column.outlier_percent || 0) > 5 ? 'text-yellow-400' :
+                        (column.outlier_percent || 0) > 0 ? 'text-orange-400' :
+                        'text-green-400'
+                      }`}>
+                        {column.outlier_count || 0} ({(column.outlier_percent || 0).toFixed(1)}%)
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">N/A</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-3 py-1 text-xs rounded-full font-bold ${

@@ -4,6 +4,34 @@ import json
 import sys
 from datetime import datetime
 
+def detect_outliers(series):
+    """Detect outliers using IQR method"""
+    try:
+        if not pd.api.types.is_numeric_dtype(series) or series.isnull().all() or len(series.dropna()) < 4:
+            return {'outlier_count': 0, 'outlier_percent': 0}
+        
+        clean_series = series.dropna()
+        Q1 = clean_series.quantile(0.25)
+        Q3 = clean_series.quantile(0.75)
+        IQR = Q3 - Q1
+        
+        if IQR == 0:
+            return {'outlier_count': 0, 'outlier_percent': 0}
+        
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        
+        outliers = clean_series[(clean_series < lower_bound) | (clean_series > upper_bound)]
+        outlier_count = len(outliers)
+        outlier_percent = (outlier_count / len(clean_series)) * 100
+        
+        return {
+            'outlier_count': int(outlier_count),
+            'outlier_percent': round(outlier_percent, 2)
+        }
+    except:
+        return {'outlier_count': 0, 'outlier_percent': 0}
+
 def infer_column_types(df):
     """Infer column data types and return metadata"""
     columns_meta = []
@@ -20,12 +48,14 @@ def infer_column_types(df):
         # Check if numeric
         if pd.api.types.is_numeric_dtype(col_data):
             dtype = 'numeric'
+            outlier_info = detect_outliers(col_data)
             stats = {
                 'min': float(col_data.min()) if not col_data.isnull().all() else None,
                 'max': float(col_data.max()) if not col_data.isnull().all() else None,
                 'mean': float(col_data.mean()) if not col_data.isnull().all() else None,
                 'std': float(col_data.std()) if not col_data.isnull().all() else None
             }
+            stats.update(outlier_info)
         # Check if datetime
         elif pd.api.types.is_datetime64_any_dtype(col_data):
             dtype = 'datetime'
@@ -65,7 +95,9 @@ def infer_column_types(df):
             'null_count': int(null_count),
             'null_percent': round(null_percent, 2),
             'unique_count': int(col_data.nunique()),
-            'stats': stats
+            'stats': stats,
+            'outlier_count': stats.get('outlier_count', 0),
+            'outlier_percent': stats.get('outlier_percent', 0)
         })
     
     return columns_meta
